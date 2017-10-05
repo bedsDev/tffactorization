@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 INFINITY = 10e+12
-
+print("loading tfnmf")
 class TFNMF(object):
     """class for Non-negative Matrix Factorization on TensorFlow
 
@@ -30,9 +30,9 @@ class TFNMF(object):
         scale = 2 * np.sqrt(V.mean() / rank)
         initializer = tf.random_uniform_initializer(maxval=scale)
 
-        self.H =  tf.get_variable("H", [rank, shape[1]],
+        self.H =  tf.get_variable("H0", [rank, shape[1]],
                                      initializer=initializer)
-        self.W =  tf.get_variable(name="W", shape=[shape[0], rank],
+        self.W =  tf.get_variable(name="W0", shape=[shape[0], rank],
                                      initializer=initializer)
 
         if algo == "mu":
@@ -85,7 +85,7 @@ class TFNMF(object):
             #select op should be executed in CPU not in GPU
             with tf.device('/cpu:0'):
                 #convert nan to zero
-                WV_WWH = tf.select(tf.is_nan(WV_WWH),
+                WV_WWH = tf.where(tf.is_nan(WV_WWH),
                                     tf.zeros_like(WV_WWH),
                                     WV_WWH)
             H_new = H * WV_WWH
@@ -98,7 +98,7 @@ class TFNMF(object):
             WHH = tf.matmul(W, tf.matmul(H, Ht))
             VH_WHH = VH / WHH
             with tf.device('/cpu:0'):
-                VH_WHH = tf.select(tf.is_nan(VH_WHH),
+                VH_WHH = tf.where(tf.is_nan(VH_WHH),
                                         tf.zeros_like(VH_WHH),
                                         VH_WHH)
             W_new = W * VH_WHH
@@ -111,7 +111,7 @@ class TFNMF(object):
     def run(self, sess, max_iter=200, min_delta=0.001):
         algo = self.algo
 
-        tf.initialize_all_variables().run()
+        tf.global_variables_initializer().run()
 
         if algo == "mu":
             return self._run_mu(sess, max_iter, min_delta)
@@ -121,7 +121,7 @@ class TFNMF(object):
             raise ValueError
 
     def _run_mu(self, sess, max_iter, min_delta):
-        for i in xrange(max_iter):
+        for i in range(max_iter):
             self.step.run()
             delta = self.delta.eval()
             if delta < min_delta:
@@ -132,7 +132,7 @@ class TFNMF(object):
 
     def _run_grad(self, sess, max_iter, min_delta):
         pre_loss = INFINITY
-        for i in xrange(max_iter):
+        for i in range(max_iter):
             loss, _ = sess.run([self.loss, self.optimize])
             if pre_loss - loss < min_delta:
                 break

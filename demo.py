@@ -14,14 +14,15 @@ from tfnmf import TFNMF
 
 def main():
     #user setting parameters
-    V = np.random.rand(10000,10000)
+    V = np.random.rand(100,100)
     rank = 10
     num_core = 8
 
     tfnmf = TFNMF(V, rank)
-    config = tf.ConfigProto(inter_op_parallelism_threads=num_core,
-                                       intra_op_parallelism_threads=num_core)
-    with tf.Session(config=config) as sess:
+    # config = tf.ConfigProto(inter_op_parallelism_threads=num_core,
+    #                                    intra_op_parallelism_threads=num_core)
+    # with tf.Session(config=config) as sess:
+    with tf.Session() as sess:
         start = time.time()
         W, H = tfnmf.run(sess)
         print("Computational Time for TFNMF: ", time.time() - start)
