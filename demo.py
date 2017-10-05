@@ -14,15 +14,24 @@ from tfnmf import TFNMF
 
 def main():
     #user setting parameters
-    V = np.random.rand(100,100)
+    V = np.random.rand(10000,10000)
     rank = 10
     num_core = 8
 
-    tfnmf = TFNMF(V, rank)
-    # config = tf.ConfigProto(inter_op_parallelism_threads=num_core,
-    #                                    intra_op_parallelism_threads=num_core)
-    # with tf.Session(config=config) as sess:
-    with tf.Session() as sess:
+    tfnmf = TFNMF(V, rank,'mu') #'grad')
+    config = tf.ConfigProto(inter_op_parallelism_threads=num_core,
+                               intra_op_parallelism_threads=num_core)
+    
+    # gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.333)
+    
+    # config = tf.ConfigProto()
+    # config.gpu_options.allow_growth=True
+    
+    # sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+    
+    
+    with tf.Session(config=config) as sess:
+    # with tf.Session(config=tf.ConfigProto(config=config)) as sess:
         start = time.time()
         W, H = tfnmf.run(sess)
         print("Computational Time for TFNMF: ", time.time() - start)

@@ -108,7 +108,7 @@ class TFNMF(object):
 
         self.step = tf.group(save_W, update_H, update_W)
 
-    def run(self, sess, max_iter=200, min_delta=0.001):
+    def run(self, sess, max_iter=2000, min_delta=0.001):
         algo = self.algo
 
         tf.global_variables_initializer().run()
