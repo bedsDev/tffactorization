@@ -40,6 +40,8 @@ def main():
     H = np.mat(H)
     error = np.power(V - W * H, 2).sum()
     print("Reconstruction Error for TFNMF: ", error)
+    print(W)
+    print(H)
 
 if __name__ == '__main__':
     main()
